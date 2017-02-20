@@ -32,7 +32,7 @@ public class InvadersApplication extends JFrame implements Runnable, KeyListener
 	
 	public InvadersApplication(){
 		// Initialize and center the window
-		this.setTitle("Assignment 4");
+		this.setTitle("Invaders Application");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Dimension screensize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 		int x = screensize.width/2 - WindowSize.width/2;
@@ -262,10 +262,8 @@ public class InvadersApplication extends JFrame implements Runnable, KeyListener
 	public void keyPressed(KeyEvent e){
 		if(e.getKeyCode() == KeyEvent.VK_RIGHT){
 			this.PlayerShip.setXSpeed(4);
-			this.repaint();
 		} else if(e.getKeyCode() == KeyEvent.VK_LEFT){
 			this.PlayerShip.setXSpeed(-4);
-			this.repaint();
 		} else if(e.getKeyCode() == KeyEvent.VK_SPACE){
 			this.addBullet();
 		}
