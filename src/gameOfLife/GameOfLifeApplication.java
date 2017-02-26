@@ -1,5 +1,7 @@
 package gameOfLife;
 
+// David Newswanger (16103671)
+
 import java.awt.*;
 import gameOfLife.Cell;
 import spaceInvaders.InvadersApplication;
