@@ -9,7 +9,7 @@ import java.awt.image.BufferStrategy;
 
 import javax.swing.*;
 
-public class GameOfLifeApplication extends JFrame implements MouseListener, Runnable, KeyListener {
+public class GameOfLifeApplication extends JFrame implements MouseMotionListener, MouseListener, Runnable, KeyListener {
 	private static final int NUM_X_CELLS = 40;
 	private static final int NUM_Y_CELLS = 40;
 	private static final Dimension WindowSize = new Dimension(800,800);
@@ -18,7 +18,8 @@ public class GameOfLifeApplication extends JFrame implements MouseListener, Runn
 	private int current_buffer = 0;
 	private BufferStrategy strategy;
 	private boolean initialized = false;
-
+	private Button start, rnd_button, load, save;
+	private boolean last_cell_clicked = false;
 	
 	private Cell[][][] cells = new Cell[NUM_X_CELLS][NUM_Y_CELLS][2];
 	
@@ -43,10 +44,18 @@ public class GameOfLifeApplication extends JFrame implements MouseListener, Runn
 		createBufferStrategy(2);
 		strategy = getBufferStrategy();
 		
+		start = new Button("Toggle Simulation", 30, 40, this.getGraphics());
+		rnd_button = new Button("Randomize", start.getX() + start.getWidth() + 10, 40, this.getGraphics());
+		save = new Button("Save", rnd_button.getX() + rnd_button.getWidth() + 10, 40, this.getGraphics());
+		load = new Button("Load", save.getX() + save.getWidth() + 10, 40, this.getGraphics());
+
+		
 		initialized = true;
 		
 		addMouseListener(this);
 		addKeyListener(this);
+		addMouseMotionListener(this);
+		
 		Thread t = new Thread(this);
 		t.start();
 
@@ -81,7 +90,7 @@ public class GameOfLifeApplication extends JFrame implements MouseListener, Runn
 						int x_ind = (((x + xx) % NUM_X_CELLS) + NUM_X_CELLS) % NUM_X_CELLS;
 						int y_ind = (((y + yy) % NUM_Y_CELLS) + NUM_Y_CELLS) % NUM_Y_CELLS;
 						if(xx!=0 || yy!=0){
-							if (this.cells[x_ind][y_ind][old_buffer].is_alive()){
+							if (this.cells[x_ind][y_ind][old_buffer].isAlive()){
 								live_neighbors ++;
 							}
 						}
@@ -89,7 +98,7 @@ public class GameOfLifeApplication extends JFrame implements MouseListener, Runn
 				}
 				
 				// Get state from old buffer and use it to update new buffer
-				boolean state = this.cells[x][y][old_buffer].is_alive();
+				boolean state = this.cells[x][y][old_buffer].isAlive();
 				this.cells[x][y][this.current_buffer].update(live_neighbors, state);
 			}
 		}
@@ -111,21 +120,6 @@ public class GameOfLifeApplication extends JFrame implements MouseListener, Runn
 		
 	}
 	
-	public void draw_buttons(Graphics g){
-		g.setColor(Color.GRAY);
-		g.fillRect(30, 30, 200, 50);
-		g.fillRect(280, 30, 150, 50);
-		
-		g.setColor(Color.WHITE);
-		g.setFont(new Font("Consolas", Font.PLAIN, 20));
-		g.drawString("Toggle Simulation", 40, 60);
-		
-		g.drawString("Randomize", 300, 60);
-		
-		
-		
-	}
-	
 	public void paint(Graphics g){
 		if (!initialized){
 			return;
@@ -141,7 +135,10 @@ public class GameOfLifeApplication extends JFrame implements MouseListener, Runn
 			}
 		}
 		
-		draw_buttons(g);
+		start.paint(g);
+		rnd_button.paint(g);
+		load.paint(g);
+		save.paint(g);
 		
 		strategy.show();
 	}
@@ -162,21 +159,15 @@ public class GameOfLifeApplication extends JFrame implements MouseListener, Runn
 	public void mousePressed(MouseEvent e) {
 		
 		// Detect click on randomize button
-		if((e.getX() > 280 && e.getX() < 280 + 150) &&
-			e.getY() > 30 && e.getY() < 30 + 50){
+		if(rnd_button.isClicked(e.getX(), e.getY())){
 			
 			randomize();
 			return;
 		}
 		
 		// Detect click on run simulation button
-		if((e.getX() > 30 && e.getX() < 30 + 200) &&
-				e.getY() > 30 && e.getY() < 30 + 50){
-				if(this.run_simulation){
-					this.run_simulation = false;
-				} else {
-					this.run_simulation = true;
-				}
+		if(start.isClicked(e.getX(), e.getY())){
+				this.run_simulation = !this.run_simulation;
 				
 				return;
 			}
@@ -184,6 +175,7 @@ public class GameOfLifeApplication extends JFrame implements MouseListener, Runn
 		// Detect click on cell
 		if(!this.run_simulation){
 			this.cells[e.getX() / CELL_WIDTH][e.getY()/CELL_WIDTH][current_buffer].flip();
+			last_cell_clicked = this.cells[e.getX() / CELL_WIDTH][e.getY()/CELL_WIDTH][current_buffer].isAlive();
 		}
 	}
 
@@ -200,15 +192,25 @@ public class GameOfLifeApplication extends JFrame implements MouseListener, Runn
 	// Enter can be used to toggle game state too.
 	public void keyReleased(KeyEvent e) {
 		if(e.getKeyCode() == KeyEvent.VK_ENTER){
-			if(this.run_simulation){
-				this.run_simulation = false;
-			} else {
-				this.run_simulation = true;
-			}
+			run_simulation = !run_simulation;
 		}
 	}
 
 	public void keyTyped(KeyEvent e) {
 
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+		if(!this.run_simulation){
+			this.cells[e.getX() / CELL_WIDTH][e.getY()/CELL_WIDTH][current_buffer].setAlive(last_cell_clicked);
+		}
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -16,6 +16,14 @@ public class Cell {
 		this.width = width;
 	}
 	
+	public boolean isAlive(){
+		return this.alive;
+	}
+	
+	public void setAlive(boolean state){
+		this.alive = state;
+	}
+	
 	public void update(int live_neighbors, boolean state){
 		this.alive = state;
 		if(state){
@@ -35,17 +43,9 @@ public class Cell {
 		}
 	}
 	
-	public boolean is_alive(){
-		return this.alive;
-	}
-	
 	public void flip(){
 		// Toggles the cell from true to false or vice versa
-		if (this.alive){
-			this.alive = false;
-		} else {
-			this.alive = true;
-		}
+		this.alive = !this.alive;
 	}
 	
 	public void paint(Graphics g){
