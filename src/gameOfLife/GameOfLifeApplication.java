@@ -6,6 +6,7 @@ import java.awt.*;
 import gameOfLife.Cell;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
+import java.io.*;
 
 import javax.swing.*;
 
@@ -14,13 +15,15 @@ public class GameOfLifeApplication extends JFrame implements MouseMotionListener
 	private static final int NUM_Y_CELLS = 40;
 	private static final Dimension WindowSize = new Dimension(800,800);
 	private static final int CELL_WIDTH = WindowSize.width / NUM_X_CELLS;
+	
+	
 	private boolean run_simulation = false;
 	private int current_buffer = 0;
 	private BufferStrategy strategy;
 	private boolean initialized = false;
 	private Button start, rnd_button, load, save;
 	private boolean last_cell_clicked = false;
-	
+	private String save_file;
 	private Cell[][][] cells = new Cell[NUM_X_CELLS][NUM_Y_CELLS][2];
 	
 	public GameOfLifeApplication(){
@@ -49,6 +52,7 @@ public class GameOfLifeApplication extends JFrame implements MouseMotionListener
 		save = new Button("Save", rnd_button.getX() + rnd_button.getWidth() + 10, 40, this.getGraphics());
 		load = new Button("Load", save.getX() + save.getWidth() + 10, 40, this.getGraphics());
 
+		save_file = System.getProperty("user.dir") + File.separator + "game_of_life_data" + File.separator + "state.txt";
 		
 		initialized = true;
 		
@@ -63,6 +67,44 @@ public class GameOfLifeApplication extends JFrame implements MouseMotionListener
 	
 	public static void main(String []args){
 		GameOfLifeApplication w = new GameOfLifeApplication();
+	}
+	
+	public void saveState(){
+		// Save live cells as 1 and dead cells as 0
+		String out = "";
+		for(int x = 0; x < NUM_X_CELLS; x ++){
+			for (int y = 0; y < NUM_Y_CELLS; y++){
+				if (cells[x][y][current_buffer].isAlive()){
+					out += "1";
+				} else {
+					out += "0";
+				}
+			}
+		}
+		
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(save_file));
+			writer.write(out);
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void loadState(){
+		// Read live cells as 1 and dead as 0
+		String data = "";
+		try{
+			BufferedReader reader = new BufferedReader(new FileReader(save_file));
+			data = reader.readLine();
+			reader.close();
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+		
+		for (int i = 0; i < data.length(); i ++){
+			cells[i / NUM_X_CELLS][i % NUM_Y_CELLS][current_buffer].setAlive(data.charAt(i) == '1');
+		}
 	}
 	
 	public void randomize(){
@@ -142,6 +184,8 @@ public class GameOfLifeApplication extends JFrame implements MouseMotionListener
 		
 		strategy.show();
 	}
+	
+	
 
 	public void mouseClicked(MouseEvent e) {
 
@@ -160,17 +204,25 @@ public class GameOfLifeApplication extends JFrame implements MouseMotionListener
 		
 		// Detect click on randomize button
 		if(rnd_button.isClicked(e.getX(), e.getY())){
-			
 			randomize();
 			return;
 		}
 		
 		// Detect click on run simulation button
 		if(start.isClicked(e.getX(), e.getY())){
-				this.run_simulation = !this.run_simulation;
-				
-				return;
-			}
+			this.run_simulation = !this.run_simulation;
+			return;
+		}
+		
+		if (save.isClicked(e.getX(), e.getY())){
+			saveState();
+			return;
+		}
+		
+		if (load.isClicked(e.getX(), e.getY())){
+			loadState();
+			return;
+		}
 		
 		// Detect click on cell
 		if(!this.run_simulation){
