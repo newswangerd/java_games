@@ -67,7 +67,7 @@ public class BadGuyChase extends JFrame implements MouseMotionListener, MouseLis
 		icon = new ImageIcon(System.getProperty("user.dir") + File.separator + "chase" + File.separator + "player.png");
 		bg = icon.getImage();
 		
-		player = new Player(bg, 20, 20, CELL_WIDTH);
+		player = new Player(bg, 35, 35, CELL_WIDTH);
 		
 		initialized = true;
 		
@@ -127,7 +127,7 @@ public class BadGuyChase extends JFrame implements MouseMotionListener, MouseLis
 	public void run() {
 		while(true){
 			try {
-				Thread.sleep(200);
+				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				e.printStackTrace();				
 			}
@@ -203,10 +203,8 @@ public class BadGuyChase extends JFrame implements MouseMotionListener, MouseLis
 		}
 		
 		// Detect click on cell
-		if(!this.run_simulation){
-			this.cells[e.getX() / CELL_WIDTH][e.getY()/CELL_WIDTH].flip();
-			last_cell_clicked = this.cells[e.getX() / CELL_WIDTH][e.getY()/CELL_WIDTH].isWall();
-		}
+		this.cells[e.getX() / CELL_WIDTH][e.getY()/CELL_WIDTH].flip();
+		last_cell_clicked = this.cells[e.getX() / CELL_WIDTH][e.getY()/CELL_WIDTH].isWall();
 	}
 
 	public void mouseReleased(MouseEvent e) {
@@ -237,9 +235,7 @@ public class BadGuyChase extends JFrame implements MouseMotionListener, MouseLis
 	}
 
 	public void mouseDragged(MouseEvent e) {
-		if(!this.run_simulation){
-			this.cells[e.getX() / CELL_WIDTH][e.getY()/CELL_WIDTH].setWall(last_cell_clicked);
-		}
+		this.cells[e.getX() / CELL_WIDTH][e.getY()/CELL_WIDTH].setWall(last_cell_clicked);
 	}
 
 	@Override
